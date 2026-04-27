@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+spec:
+  replicas: 3  # 3 replicas en prod : HA réelle (tolérance à 1 node failure)
+  template:
+    spec:
+      containers:
+      - name: demo-app
+        resources:
+          # Requests plus élevées en prod : scheduler place les pods sur des nodes robustes
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"

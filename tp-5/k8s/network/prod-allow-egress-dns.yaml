@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-dns
+  namespace: app-prod
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  # DNS est indispensable : sans cette règle, les pods ne peuvent pas résoudre
+  # les noms de services Kubernetes (kube-dns tourne sur port 53 UDP+TCP)
+  - ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53

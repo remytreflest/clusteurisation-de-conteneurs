@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: dev-limitrange
+  namespace: app-dev
+spec:
+  limits:
+  - type: Container
+    # Valeurs par défaut si le manifest ne précise pas requests/limits.
+    # Indispensable : sans LimitRange, un pod sans limits consomme sans garde-fou.
+    default:
+      cpu: "100m"
+      memory: "128Mi"
+    defaultRequest:
+      cpu: "50m"
+      memory: "64Mi"
+    # Plafond par container : un dev ne peut pas déployer un container trop gourmand
+    max:
+      cpu: "500m"
+      memory: "512Mi"
+    min:
+      cpu: "10m"
+      memory: "16Mi"
+  - type: Pod
+    max:
+      cpu: "1"
+      memory: "768Mi"

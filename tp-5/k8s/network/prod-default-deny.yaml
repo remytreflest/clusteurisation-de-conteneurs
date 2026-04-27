@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: app-prod
+spec:
+  # podSelector vide = s'applique à TOUS les pods du namespace
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  # Aucune règle = deny all ingress + deny all egress.
+  # Principe : zero trust réseau. Tout trafic doit être explicitement autorisé.

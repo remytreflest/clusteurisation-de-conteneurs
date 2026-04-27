@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: dev-quota
+  namespace: app-dev
+spec:
+  hard:
+    # 10 pods max : évite qu'un dev loop de crash crashe le scheduler avec 1000 pods
+    pods: "10"
+    # 1 CPU total : dev ne doit pas monopoliser le cluster partagé
+    requests.cpu: "1"
+    requests.memory: "512Mi"
+    limits.cpu: "2"
+    limits.memory: "1Gi"
+    # Limite les services de type LoadBalancer (coûteux en infra cloud)
+    services.loadbalancers: "0"

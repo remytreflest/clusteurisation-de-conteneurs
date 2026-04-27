@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: developer-role
+  namespace: app-staging
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "endpoints", "events"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/log", "pods/exec"]
+  verbs: ["get", "create"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Secrets : toujours interdits en staging.
+  # En staging les secrets sont injectés par le pipeline CI (ex : External Secrets Operator).

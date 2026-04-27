@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+  labels:
+    app: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # zero downtime : le nouveau pod doit être ready avant de tuer l'ancien
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      # securityContext au niveau pod : runAsNonRoot couvre tous les containers
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        # seccompProfile RuntimeDefault : restreint les syscalls autorisés.
+        # Requis par PSS restricted.
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: demo-app
+        # http-echo : serveur HTTP minimaliste basé sur scratch.
+        # Répond avec le texte passé en argument -> parfait pour identifier l'env.
+        image: hashicorp/http-echo:0.2.3
+        args:
+        # $(VAR) est résolu par Kubernetes depuis les env vars du container
+        - "-text=env=$(ENV_NAME) | log_level=$(LOG_LEVEL) | demo-app v1"
+        env:
+        - name: ENV_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: demo-app-config
+              key: ENV_NAME
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: demo-app-config
+              key: LOG_LEVEL
+        ports:
+        - containerPort: 5678
+          name: http
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true  # http-echo (scratch) n'écrit pas sur le FS
+          capabilities:
+            drop: ["ALL"]  # PSS restricted exige drop ALL
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5678
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5678
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          failureThreshold: 6

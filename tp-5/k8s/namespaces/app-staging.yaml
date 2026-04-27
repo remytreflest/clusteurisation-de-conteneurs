@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app-staging
+  labels:
+    app.kubernetes.io/part-of: demo-app
+    environment: staging
+    owner: platform-team
+    # PSS baseline en staging : miroir de dev pour faciliter le debug QA.
+    # On peut monter à restricted progressivement avant prod.
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

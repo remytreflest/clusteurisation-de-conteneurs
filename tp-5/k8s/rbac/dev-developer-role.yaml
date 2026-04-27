@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: developer-role
+  namespace: app-dev
+rules:
+  # Lecture générale pour observer l'état du namespace
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "endpoints", "events"]
+  verbs: ["get", "list", "watch"]
+  # Debug : logs et exec sont essentiels en dev pour diagnostiquer
+- apiGroups: [""]
+  resources: ["pods/log", "pods/exec"]
+  verbs: ["get", "create"]
+  # Gestion complète des déploiements en dev
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Secrets : lecture INTERDITE même en dev.
+  # Stratégie : les devs reçoivent les secrets via leur outil CI ou sealed-secrets.
+  # Cela évite l'exfiltration accidentelle de credentials de staging/prod.

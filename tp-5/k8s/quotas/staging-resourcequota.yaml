@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: staging-quota
+  namespace: app-staging
+spec:
+  hard:
+    # Staging plus généreux : doit pouvoir charger des tests de performance
+    pods: "20"
+    requests.cpu: "2"
+    requests.memory: "2Gi"
+    limits.cpu: "4"
+    limits.memory: "4Gi"
+    services.loadbalancers: "1"

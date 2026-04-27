@@ -1,0 +1,26 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: prod-deployer-role
+  namespace: app-prod
+rules:
+  # Lecture pods + logs : monitoring post-déploiement par le CI
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+  # get/update/patch deployments : rolling update uniquement.
+  # Pas de create/delete : le CI ne peut pas supprimer un déploiement en prod.
+  # Le "create" initial est fait par platform-admin lors de la mise en service.
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "update", "patch"]
+  # Services et ingress : lecture + update pour les cas de coupure/bascule
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch", "update", "patch"]

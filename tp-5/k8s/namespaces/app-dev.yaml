@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app-dev
+  labels:
+    app.kubernetes.io/part-of: demo-app
+    environment: dev
+    owner: platform-team
+    # PSS baseline : interdit les configs dangereuses (hostPID, privileged...)
+    # mais tolère des containers root. Adapté au dev pour ne pas bloquer.
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline
+    pod-security.kubernetes.io/audit: baseline
